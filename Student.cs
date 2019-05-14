@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace sharp_laborai 
+namespace sharp_laborai
 {
     public class Student
     {
