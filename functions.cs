@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 namespace sharp_laborai
 
@@ -9,45 +10,27 @@ namespace sharp_laborai
     {
         public static double CalculateFilnalResult(List<int> list, int examResult)
         {
-            try
+            double count = 0;
+            foreach (var results in list)
             {
-                double count = 0;
-                foreach (var results in list)
-                {
-                    count += results;
-                }
-                return Math.Round(count / list.Count * 0.3 + examResult * 0.7, 2);
+                count += results;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Ivyko klaida: " + ex);
-                return 0;
-            }
-            }
+            return Math.Round(count / list.Count * 0.3 + examResult * 0.7, 2);
+        }
 
         public static double CalculateMedian(List<int> list, double examResult)
         {
-            try
-            {
-                var tempList = list.OrderBy(x => x).ToList();
+            var tempList = list.OrderBy(x => x).ToList();
             int mid = tempList.Count / 2;
             double median = (mid % 2 != 0) ?
                 tempList[mid] :
                 ((tempList[mid] + tempList[mid - 1]) / 2);
             return Math.Round(median * 0.3 + examResult * 0.7, 2);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Ivyko klaida: " + ex);
-                return 0;
-            }
         }
 
         public static void GetResultsToScreen(List<Student> list, int vidOrMed)
         {
-            try
-            {
-                if (list.Count != 0)
+            if (list.Count != 0)
             {
                 if (vidOrMed == 1)
                 {
@@ -74,11 +57,88 @@ namespace sharp_laborai
                     }
                 }
             }
-            }
-            catch (Exception ex)
+        }
+        public static void GenerateRandomList(List<Student> list, int listSize)
+        {
+            Random rnd = new Random();
+            int skaitliukas = 1;
+            while (skaitliukas <= listSize)
             {
-                Console.WriteLine("Ivyko klaida: " + ex);
+                Student student = new Student
+                {
+                    Results = new List<int>()
+                };
+                student.Name = "Vardas" + skaitliukas;
+                student.Surname = "Pavarde" + skaitliukas;
+                student.Results.Add(rnd.Next(1, 10));
+                student.Results.Add(rnd.Next(1, 10));
+                student.Results.Add(rnd.Next(1, 10));
+                student.Results.Add(rnd.Next(1, 10));
+                student.Results.Add(rnd.Next(1, 10));
+                student.ExamResult = rnd.Next(1, 10);
+                student.FinalResult = CalculateFilnalResult(student.Results, student.ExamResult);
+                list.Add(student);
+                skaitliukas++;
             }
         }
+        public static void GenerateRandomListFile(int listSize)
+        {
+            List<Student> list = new List<Student>();
+            GenerateRandomList(list, listSize);
+            using (TextWriter tw = new StreamWriter("../../StudentuSarasas" + listSize + ".txt"))
+            {
+                foreach (var person in list)
+                {
+                    string line = "";
+                    line = person.Name + " " + person.Surname + " ";
+                    foreach (var grades in person.Results)
+                    {
+                        line += grades + " ";
+                    }
+                    line += person.ExamResult + " " + person.FinalResult;
+                    tw.WriteLine(line);
+                }
+            }
+        }
+        public static void SortListAndGenerateFiles(int listSize)
+        {
+            List<Student> MaziauPenkiu = new List<Student>();
+            List<Student> DaugiauPenkiu = new List<Student>();
+            GenerateRandomList(MaziauPenkiu, listSize);
+
+            DaugiauPenkiu = MaziauPenkiu.Where(item => item.FinalResult >= 5).ToList();
+            MaziauPenkiu.RemoveAll(item => item.FinalResult >= 5);
+            using (TextWriter tw = new StreamWriter("../../DaugiauPenkiu" + listSize + ".txt"))
+            {
+                foreach (var person in DaugiauPenkiu)
+                {
+                    string line = "";
+                    line = person.Name + " " + person.Surname + " ";
+                    foreach (var grades in person.Results)
+                    {
+                        line += grades + " ";
+                    }
+                    line += person.ExamResult + " " + person.FinalResult;
+                    tw.WriteLine(line);
+                }
+            }
+            using (TextWriter tw = new StreamWriter("../../MaziauPenkiu" + listSize + ".txt"))
+            {
+                foreach (var person in MaziauPenkiu)
+                {
+                    string line = "";
+                    line = person.Name + " " + person.Surname + " ";
+                    foreach (var grades in person.Results)
+                    {
+                        line += grades + " ";
+                    }
+                    line += person.ExamResult + " " + person.FinalResult;
+                    tw.WriteLine(line);
+                }
+            }
+
+        }
+
     }
 }
+
